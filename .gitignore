@@ -3,10 +3,28 @@
 .env.*
 !.env.example
 
-# OS and editor
+# OS
 .DS_Store
+Thumbs.db
+
+# Editors / IDEs
 *.swp
 *.swo
+*~
+
+# JetBrains (IntelliJ, WebStorm, PhpStorm, ...)
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# VS Code
+.vscode/
+
+# Vim / Emacs
+*.un~
+.\#*
+\#*\#
 
 # Logs and temp
 *.log
