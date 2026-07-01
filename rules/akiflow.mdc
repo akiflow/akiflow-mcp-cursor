@@ -1,0 +1,44 @@
+---
+description: How to use the Akiflow MCP — the resource server for the user's Akiflow tasks, calendar, and productivity data. Apply whenever the user asks to create/edit/plan/complete tasks or reminders, read their schedule, create or reschedule calendar events, block focus time (time slots), or read meeting transcripts.
+alwaysApply: false
+---
+
+# Akiflow
+
+Akiflow is the user's task, calendar, and productivity app. The `akiflow` MCP server exposes their real tasks, events, time slots, projects, tags, calendars, and meeting transcripts. Every tool acts on behalf of the authenticated user.
+
+Use these tools when the user wants to organize their work or time — e.g. "remind me to…", "add a task…", "what's on my schedule…", "block an hour for…", "put a meeting on my calendar…". Reminders are tasks too: "remind me of X" means create a task about X.
+
+## Conventions
+
+- **Datetimes are naive local wall-clock** in the user's own timezone, with no offset (e.g. `2026-06-04T14:30:00`) — a time returned by one tool can be passed straight into another unchanged. Durations are in minutes.
+- **Resolve ids before writing.** Before creating or editing, use the `list_*` tools and `get_schedule` to find the right project, tag, calendar, or existing item rather than guessing ids.
+- **Task placement is exclusive.** A task has a single placement — a specific day/datetime (`start_datetime`), a whole week (`plan_week` as `YYYY-WW`, e.g. `2026-26`), or a whole month (`plan_month` as `YYYY-MM`). These are mutually exclusive; never combine them.
+- **Recurring items:** to edit or delete a single occurrence of a recurring task or event, use the occurrence pseudoid `get_schedule` returns for it (e.g. `parentId_20260604`). Series-wide edits are not supported.
+- **Read-only calendars** (subscribed/shared calendars the user only watches) are flagged `[READ-ONLY]`/`calendar_read_only` — don't treat their events as the user's own commitments or scheduling conflicts unless the user says so.
+- **Calendar guests are notified by default** on create/edit/delete; pass `notify_guests=false` to make the change silently.
+
+## Tools
+
+### Read
+
+- **`list_tasks`** — List open (not-done) inbox or someday tasks. Dated/planned tasks come through `get_schedule`, not here.
+- **`get_schedule`** — Read tasks, events, and time slots over a date range (up to 90 days), with overdue/completed modes, sorting, and content filters.
+- **`get_task` / `get_event` / `get_time_slot`** — Read a single item by id (a plain UUID, or a recurring-occurrence pseudoid), returning the same full detail the create/edit tools return. Prefer these over a `get_schedule` scan when you already hold an id.
+- **`list_projects` / `list_tags` / `list_calendars`** — Reference data so tasks are routed and events placed correctly (project icons, tag titles, calendar account/primary/sync flags).
+- **`list_transcripts`** — List the user's meeting recordings (summaries), most recent first.
+- **`get_transcript`** — Get one full transcript by id: summary, action items, and the speaker-by-speaker transcript.
+- **`get_transcript_by_event`** — Get the transcript for a calendar event, via the `event_id` `get_schedule` returned.
+
+### Write
+
+- **`create_task` / `edit_task`** — Create or edit a task (inbox / planned / someday), with optional priority, project, tags, deadline, time slot, recurrence, and links.
+- **`complete_task`** — Mark a task done.
+- **`delete_task`** *(destructive)* — Move a task to Trash (recoverable in-app), or cancel a single recurring instance.
+- **`plan_task`** — Place an existing task on exactly one of: a day/datetime, a week, or a month.
+- **`move_task_to_inbox`** — Move a task back to the inbox; clears its date/time, done state, and recurrence.
+- **`create_time_slot` / `edit_time_slot`** — Create or edit a focused-time block, optionally tied to a project.
+- **`create_event` / `edit_event`** — Create or edit a calendar event, with guests, recurrence, and automatic conferencing (Google Meet / Zoom / Teams). Emails guests unless `notify_guests=false`.
+- **`delete_event`** *(destructive)* — Delete a standalone event, or one occurrence/the series of a recurring event; emails guests unless silenced.
+
+Full setup guide: https://product.akiflow.com/help/articles/4302815-akiflow-mcp

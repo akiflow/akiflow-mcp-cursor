@@ -1,0 +1,16 @@
+{
+  "name": "akiflow",
+  "displayName": "Akiflow",
+  "version": "1.0.0",
+  "description": "Your tasks, calendar, and meetings across every account, controlled from your AI client.",
+  "author": {
+    "name": "Akiflow",
+    "email": "support@akiflow.com"
+  },
+  "homepage": "https://akiflow.com",
+  "license": "MIT",
+  "keywords": ["tasks", "calendar", "scheduling", "meetings", "productivity", "mcp"],
+  "category": "Productivity",
+  "logo": "assets/logo.svg",
+  "mcpServers": "mcp.json"
+}
